@@ -5,7 +5,7 @@
   "ram": 4,
   "logo": "",
   "background": "",
-  "news": "Bienvenue sur SkyEarth !",
+  "news": "Prêt à rejoindre le monde ?",
   "serverIp": "play.skyearth.fr",
   "remoteUrl": "",
   "adminHash": "8c6976e5b5410415bde908bd4dee15dfb167a9c873fc4bb8a81f6f2ab448a918",
@@ -18,5 +18,11 @@
   "rpcButtonLabel": "Rejoindre le Discord",
   "rpcButtonUrl": "",
   "rpcDetailsPlaying": "Joue à Minecraft sur {name}",
-  "manifestUrl": ""
+  "manifestUrl": "",
+  "admins": [],
+  "newsList": [],
+  "linkDiscord": "",
+  "linkWeb": "",
+  "linkYoutube": "",
+  "linkTiktok": ""
 }

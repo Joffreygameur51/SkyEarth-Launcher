@@ -1,4 +1,4 @@
-const { app, BrowserWindow, ipcMain, dialog } = require('electron');
+const { app, BrowserWindow, ipcMain, dialog, shell } = require('electron');
 const path = require('path'), fs = require('fs'), crypto = require('crypto');
 const { Auth } = require('msmc');
 const { Client } = require('minecraft-launcher-core');
@@ -62,7 +62,7 @@ app.on('before-quit', stopRpc);
 
 app.whenReady().then(() => {
   win = new BrowserWindow({
-    width: 1000, height: 620, resizable: false, frame: false, backgroundColor: '#0B2A4A',
+    width: 1100, height: 680, resizable: false, frame: false, backgroundColor: '#0B2A4A',
     webPreferences: { preload: path.join(__dirname, 'preload.js') }
   });
   win.loadFile('index.html');
@@ -85,9 +85,27 @@ ipcMain.handle('config:get', async () => {
   return { ...cfg, adminHash: undefined };
 });
 
+// Admin = pseudo Minecraft vérifié par la connexion Microsoft, ou mot de passe
+const isAdminName = cfg => !!session && (cfg.admins || []).some(a => String(a).toLowerCase() === session.profile.name.toLowerCase());
+ipcMain.handle('admin:isAdmin', () => isAdminName(loadCfg()));
+
+// Réglages propres à chaque joueur
+const setFile = () => path.join(data(), 'settings.json');
+const loadSet = () => { let s = {}; try { s = JSON.parse(fs.readFileSync(setFile(), 'utf8')); } catch {} return { ram: loadCfg().ram, fullscreen: false, minimize: true, ...s }; };
+ipcMain.handle('settings:get', () => loadSet());
+ipcMain.handle('settings:set', (_, s) => { fs.writeFileSync(setFile(), JSON.stringify({ ...loadSet(), ...s })); });
+
+ipcMain.handle('server:status', async () => {
+  try {
+    const j = await (await fetch('https://api.mcsrvstat.us/3/' + encodeURIComponent(loadCfg().serverIp))).json();
+    return { online: !!j.online, players: j.players || { online: 0, max: 0 } };
+  } catch { return { online: false }; }
+});
+ipcMain.handle('open', (_, u) => { if (u === 'game') { const r = gameRoot(loadCfg()); fs.mkdirSync(r, { recursive: true }); shell.openPath(r); } else if (/^https:\/\//.test(u)) shell.openExternal(u); });
+
 ipcMain.handle('admin:save', (_, { password, config }) => {
   const cfg = loadCfg();
-  if (sha(password) !== cfg.adminHash) return { ok: false, error: 'Mot de passe incorrect' };
+  if (!isAdminName(cfg) && sha(password) !== cfg.adminHash) return { ok: false, error: 'Accès refusé : pseudo non admin ou mot de passe incorrect' };
   const next = { ...cfg, ...config };
   if (config.newPassword) next.adminHash = sha(config.newPassword);
   delete next.newPassword;
@@ -175,10 +193,12 @@ ipcMain.handle('launch', async () => {
     authorization: session.mclc(), root,
     forge: man.forge ? path.join(root, man.forge) : undefined,
     version: { number: man.mcVersion || cfg.mcVersion, type: 'release', custom: man.custom },
-    memory: { max: cfg.ram + 'G', min: '1G' }
+    memory: { max: loadSet().ram + 'G', min: '1G' },
+    window: loadSet().fullscreen ? { fullscreen: true } : undefined
   });
   mc.on('progress', e => send('progress', Math.round(e.task / e.total * 100)));
   mc.on('close', () => { send('closed'); playing = false; setActivity(false); });
   playing = true; setActivity(true);
+  if (loadSet().minimize) win.minimize();
   return { ok: true };
 });

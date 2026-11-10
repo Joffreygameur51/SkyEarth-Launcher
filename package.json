@@ -30,8 +30,8 @@
     "publish": [
       {
         "provider": "github",
-        "owner": "Joffreygameur51",
-        "repo": "SkyEarth-Launcher"
+        "owner": "TON_PSEUDO_GITHUB",
+        "repo": "skyearth-launcher"
       }
     ]
   }

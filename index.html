@@ -1,152 +1,203 @@
 <!DOCTYPE html>
 <html lang="fr"><head><meta charset="UTF-8">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self' file:; img-src 'self' file: data:; media-src 'self' file:; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self' file:; img-src 'self' file: data: https:; media-src 'self' file:; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'">
 <title>SkyEarth</title>
 <style>
-:root{--sky:#6EC6FF;--deep:#0B2A4A;--grass:#5BAA3C;--dirt:#7A4B2A;--cloud:#F4F8FB}
-*{box-sizing:border-box;margin:0}
-body{width:1000px;height:620px;overflow:hidden;font:16px/1.4 "Trebuchet MS",Verdana,sans-serif;color:var(--cloud);background:linear-gradient(var(--sky) 0 55%,var(--grass) 55% 58%,var(--dirt) 58%)}
-#bg{position:fixed;inset:0;width:100%;height:100%;object-fit:cover;z-index:0}
-.shade{position:fixed;inset:0;background:linear-gradient(90deg,#0B2A4Acc,#0B2A4A00 70%);z-index:1}
-#bar{position:fixed;top:0;left:0;right:0;height:36px;-webkit-app-region:drag;display:flex;justify-content:flex-end;gap:4px;padding:4px 8px;z-index:5}
-#bar button{-webkit-app-region:no-drag;width:30px;background:#0003;color:var(--cloud);border:0;border-radius:4px;cursor:pointer}
-main{position:relative;z-index:2;height:100%;padding:60px 48px 40px;display:flex;flex-direction:column;justify-content:space-between;width:430px}
-#logo{max-width:220px;max-height:110px;display:none}
-h1{font-size:44px;letter-spacing:1px}
-#ver{opacity:.8;font-size:14px}
-#news{margin-top:18px;padding:14px 16px;background:#0B2A4Aaa;border-left:4px solid var(--grass);border-radius:4px}
-.btn{border:0;border-radius:6px;padding:14px 20px;font:inherit;font-weight:700;cursor:pointer;color:#fff;background:var(--grass);width:100%}
-.btn:hover{filter:brightness(1.1)}.btn:focus-visible,input:focus-visible{outline:3px solid var(--cloud);outline-offset:2px}
-.btn.alt{background:#0B2A4Acc;margin-top:10px}.btn:disabled{opacity:.5;cursor:default}
-#prog{height:8px;background:#0006;border-radius:4px;overflow:hidden;margin-top:12px;display:none}
-#prog i{display:block;height:100%;width:0;background:var(--sky)}
-#user,#err{margin-bottom:8px;min-height:20px}#err{color:#ffb4a8}
-#admin{position:fixed;inset:0;z-index:10;background:#0B2A4Af2;display:none;padding:50px 80px;overflow:auto}
-#admin label{display:block;margin:10px 0 4px;font-size:14px}
-#admin input{width:100%;padding:9px;border-radius:5px;border:0;font:inherit}
-#admin .row{display:flex;gap:10px}#admin .row>*{flex:1}
+:root{--ink:#0A1620;--panel:#111F2B;--line:#1E3344;--sky:#6EC6FF;--grass:#5BAA3C;--cloud:#F4F8FB;--mute:#8FA6B8}
+*{box-sizing:border-box;margin:0}[hidden]{display:none!important}
+body{width:1100px;height:680px;overflow:hidden;font:14px "Segoe UI",system-ui,sans-serif;color:var(--cloud);background:var(--ink)}
+#bg{position:fixed;inset:0;width:100%;height:100%;object-fit:cover;opacity:.3}
+#app{position:relative;display:flex;height:100%}
+nav{width:84px;background:#08121bf0;border-right:1px solid var(--line);display:flex;flex-direction:column;align-items:center;gap:12px;padding:16px 0}
+nav button,#sc button,#refSrv{width:46px;height:46px;border:0;border-radius:12px;background:var(--panel);color:var(--cloud);font-size:20px;cursor:pointer}
+nav button:hover,nav .act{background:var(--line)}nav .act{box-shadow:inset 3px 0 var(--grass)}
+#avatar{width:52px;height:52px;border-radius:12px;image-rendering:pixelated;background:var(--panel)}
+.sp{flex:1}#social{display:flex;flex-direction:column;gap:12px}
+#wc{position:fixed;top:0;right:0;height:32px;display:flex;z-index:9;-webkit-app-region:drag;width:100%;justify-content:flex-end}
+#wc button{-webkit-app-region:no-drag;width:40px;border:0;background:none;color:var(--cloud);cursor:pointer}#wc button:hover{background:#fff2}
+main{flex:1;padding:40px 44px 20px;overflow:auto}
+.page{display:none}.page.on{display:block}
+.hero{text-align:center;display:flex;flex-direction:column;align-items:center;gap:10px;margin-bottom:26px}
+#logo{max-height:130px}.big{font-size:40px;font-weight:800}
+#title{font-size:26px;font-weight:700}
+#chip{padding:6px 16px;border:1px solid var(--line);border-radius:20px;background:#0A1620cc;color:var(--mute);font-size:13px}
+.btn{border:0;border-radius:10px;padding:13px 34px;font:inherit;font-weight:700;color:#fff;background:var(--grass);cursor:pointer;min-width:200px}
+.btn:hover{filter:brightness(1.1)}.btn:disabled{opacity:.5}.btn.alt{background:var(--line)}
+button:focus-visible,input:focus-visible,textarea:focus-visible{outline:2px solid var(--sky);outline-offset:2px}
+#prog{width:300px;height:6px;background:#0008;border-radius:3px;overflow:hidden;display:none}#prog i{display:block;height:100%;width:0;background:var(--sky)}
+#status{color:var(--mute);min-height:18px}#err{color:#ffb4a8;min-height:18px}
+.grid{display:grid;grid-template-columns:1fr 300px;gap:18px}
+.card{background:#111F2Bcc;border:1px solid var(--line);border-radius:14px;padding:18px}
+.card h3{display:flex;justify-content:space-between;align-items:center;font-size:16px;margin-bottom:12px;text-align:center}
+#refSrv{width:30px;height:30px;font-size:14px;border-radius:8px}
+#news{display:flex;gap:12px;flex-wrap:wrap}
+.nc{width:calc(50% - 6px);height:130px;border-radius:10px;background:var(--line) center/cover;display:flex;flex-direction:column;justify-content:flex-end;padding:10px;cursor:pointer;text-shadow:0 1px 4px #000}
+.nc small{opacity:.8}
+.srow{display:flex;align-items:center;gap:10px;background:var(--ink);padding:12px;border-radius:10px}
+.dot{width:10px;height:10px;border-radius:50%;background:#c0453a}.dot.on{background:#27c486}.srow b{margin-left:auto}
+h2{margin-bottom:16px}
+label{display:block;margin:12px 0 4px;color:var(--mute);font-size:13px}
+.chk{display:flex;gap:10px;align-items:center;color:var(--cloud);font-size:14px}
+input[type=text],input[type=password],input:not([type]),textarea{width:100%;padding:9px 10px;border:1px solid var(--line);border-radius:8px;background:var(--ink);color:var(--cloud);font:inherit}
+input[type=range]{width:100%;accent-color:var(--grass)}
+.fgrid{display:grid;grid-template-columns:1fr 1fr;gap:0 16px}.full{grid-column:1/-1}
+.row{display:flex;gap:10px;margin-top:16px}
 </style></head><body>
-<div id="bar"><button id="admBtn" title="Admin">⚙</button><button onclick="api.win('min')">–</button><button onclick="api.win('close')">✕</button></div>
-<div class="shade"></div>
+<div id="wc"><button onclick="api.win('min')">–</button><button onclick="api.win('close')">✕</button></div>
+<div id="app">
+<nav>
+  <img id="avatar" alt="" hidden>
+  <button data-p="home" class="act" title="Accueil">🏠</button>
+  <button data-p="set" title="Paramètres">⚙</button>
+  <button data-p="admin" title="Panel admin">🛡</button>
+  <div class="sp"></div><div id="social"></div>
+</nav>
 <main>
-  <div>
-    <img id="logo" alt="Logo"><h1 id="name">SkyEarth</h1><div id="ver"></div>
-    <div id="news"></div>
+<section class="page on" id="p-home">
+  <div class="hero">
+    <img id="logo" alt="" hidden><div id="name" class="big"></div>
+    <div id="title"></div><div id="chip" hidden></div>
+    <button class="btn" id="main">Se connecter avec Microsoft</button>
+    <div id="prog"><i></i></div><div id="status"></div><div id="err"></div>
   </div>
-  <div>
-    <div id="user"></div><div id="err"></div>
-    <button class="btn alt" id="login">Se connecter avec Microsoft</button>
-    <button class="btn" id="play" disabled>Jouer</button>
-    <div id="prog"><i></i></div><div id="status" style="margin-top:8px;font-size:14px;min-height:20px"></div>
+  <div class="grid">
+    <div class="card"><h3>Actualités</h3><div id="news"></div></div>
+    <div class="card"><h3>État du serveur <button id="refSrv" title="Actualiser">⟳</button></h3><div id="srv"></div></div>
   </div>
-</main>
+  <div id="ver" style="margin-top:14px;color:var(--mute);font-size:12px"></div>
+</section>
 
-<section id="admin">
-  <h2>Panel admin</h2>
-  <div id="a_gate">
-    <label>Mot de passe admin</label><input id="a_pw" type="password">
-    <div class="row" style="margin-top:14px">
-      <button class="btn" id="a_enter">Entrer</button>
-      <button class="btn alt" id="a_cancel" style="margin-top:0">Annuler</button>
-    </div>
-    <div id="a_gmsg" style="margin-top:10px;color:#ffb4a8"></div>
-  </div>
-  <div id="a_form" style="display:none">
-  <div class="row"><div><label>Nom</label><input id="a_name"></div><div><label>Version du launcher</label><input id="a_version"></div></div>
-  <div class="row"><div><label>Version Minecraft</label><input id="a_mc"></div><div><label>RAM (Go)</label><input id="a_ram" type="number" min="1" max="32"></div></div>
-  <label>IP du serveur</label><input id="a_ip">
-  <label>Message d'accueil</label><input id="a_news">
-  <label>URL du manifest de mods (modpack.json)</label><input id="a_manifest">
-  <label>URL de config distante (optionnel, pour tous les joueurs)</label><input id="a_remote">
-  <label>Nouveau mot de passe admin (optionnel)</label><input id="a_newpw" type="password">
-  <h3 style="margin-top:18px">Discord Rich Presence</h3>
-  <label>Application ID (vide = RPC désactivé)</label><input id="a_rpcId">
-  <div class="row"><div><label>Ligne 1 (launcher)</label><input id="a_rpcDetails"></div><div><label>Ligne 2 (launcher)</label><input id="a_rpcState"></div></div>
-  <div class="row"><div><label>Ligne 1 (en jeu)</label><input id="a_rpcDetailsP"></div><div><label>Ligne 2 (en jeu)</label><input id="a_rpcStateP"></div></div>
-  <div class="row"><div><label>Nom de l'image (Art Assets)</label><input id="a_rpcImg"></div><div><label>Texte au survol de l'image</label><input id="a_rpcImgText"></div></div>
-  <div class="row"><div><label>Bouton : texte</label><input id="a_rpcBtnL"></div><div><label>Bouton : lien (https://…)</label><input id="a_rpcBtnU"></div></div>
-  <div style="font-size:13px;opacity:.8;margin-top:6px">Variables : {player} {version} {name}</div>
-  <div class="row" style="margin-top:14px">
-    <button class="btn alt" id="a_bg">Fond (image / GIF / vidéo)</button>
-    <button class="btn alt" id="a_logo">Logo</button>
-  </div>
-  <div class="row" style="margin-top:14px">
-    <button class="btn" id="a_save">Enregistrer</button>
-    <button class="btn alt" id="a_close">Fermer</button>
-  </div>
-  <div id="a_msg" style="margin-top:10px"></div>
+<section class="page" id="p-set">
+  <h2>Paramètres</h2>
+  <div class="card">
+    <label style="margin-top:0">Mémoire RAM allouée : <b id="ramv" style="color:var(--cloud)"></b></label>
+    <input type="range" id="ram" min="1" max="16">
+    <label class="chk"><input type="checkbox" id="fs"> Lancer le jeu en plein écran</label>
+    <label class="chk"><input type="checkbox" id="mini"> Réduire le launcher quand le jeu démarre</label>
+    <div class="row"><button class="btn alt" id="openDir">Ouvrir le dossier du jeu</button></div>
   </div>
 </section>
 
+<section class="page" id="p-admin">
+  <h2>Panel admin</h2>
+  <div class="card" id="gate" hidden style="max-width:420px">
+    <label style="margin-top:0">Mot de passe admin</label><input id="gpw" type="password">
+    <div class="row"><button class="btn" id="genter">Entrer</button></div><div id="gmsg" style="color:#ffb4a8;margin-top:8px"></div>
+  </div>
+  <div class="card" id="aform" hidden>
+    <div class="fgrid" id="fields"></div>
+    <label>Pseudos admins (séparés par des virgules)</label><input id="f_admins">
+    <label>Actualités (une par ligne : titre | date | image https | lien https)</label><textarea id="f_newsList" rows="4"></textarea>
+    <label>Nouveau mot de passe admin (optionnel)</label><input id="f_newPassword" type="password">
+    <div class="row"><button class="btn alt" id="a_bg">Fond (image / GIF / vidéo)</button><button class="btn alt" id="a_logo">Logo</button></div>
+    <div class="row"><button class="btn" id="a_save">Enregistrer</button></div><div id="a_msg" style="margin-top:8px"></div>
+  </div>
+</section>
+</main></div>
+
 <script>
 const $ = id => document.getElementById(id);
-let cfg = {};
-const isVideo = u => /\.(mp4|webm)(\?|$)/i.test(u);
+let cfg = {}, me = null, pw = '', pending = {};
+const F = [['name','Nom du launcher'],['version','Version affichée'],['mcVersion','Version Minecraft'],['news',"Titre d'accueil"],
+ ['serverIp','IP du serveur'],['manifestUrl','URL du manifest de mods'],['remoteUrl','URL de config distante'],
+ ['linkDiscord','Lien Discord'],['linkWeb','Lien site web'],['linkYoutube','Lien YouTube'],['linkTiktok','Lien TikTok'],
+ ['rpcClientId','RPC : Application ID'],['rpcDetails','RPC : ligne 1 (launcher)'],['rpcState','RPC : ligne 2 (launcher)'],
+ ['rpcDetailsPlaying','RPC : ligne 1 (en jeu)'],['rpcStatePlaying','RPC : ligne 2 (en jeu)'],['rpcLargeImage',"RPC : nom de l'image"],
+ ['rpcLargeText','RPC : texte au survol'],['rpcButtonLabel','RPC : texte du bouton'],['rpcButtonUrl','RPC : lien du bouton']];
+F.forEach(([k,l]) => { const d = document.createElement('div'); d.innerHTML = `<label for="f_${k}">${l}</label><input id="f_${k}">`; $('fields').append(d); });
 
+const isVideo = u => /\.(mp4|webm)(\?|$)/i.test(u);
 function applyBg(u){
-  document.querySelectorAll('#bg').forEach(e=>e.remove());
-  if(!u) return;
-  const el = document.createElement(isVideo(u)?'video':'img');
-  el.id='bg'; el.src=u;
-  if(isVideo(u)) Object.assign(el,{autoplay:true,loop:true,muted:true});
+  const old = $('bg'); if (old) old.remove(); if (!u) return;
+  const el = document.createElement(isVideo(u) ? 'video' : 'img'); el.id = 'bg'; el.src = u;
+  if (isVideo(u)) Object.assign(el, { autoplay: true, loop: true, muted: true });
   document.body.prepend(el);
 }
+function show(p){
+  document.querySelectorAll('.page').forEach(e => e.classList.toggle('on', e.id === 'p-' + p));
+  document.querySelectorAll('nav [data-p]').forEach(b => b.classList.toggle('act', b.dataset.p === p));
+  if (p === 'admin') openAdmin(); if (p === 'set') loadSet();
+}
+document.querySelectorAll('nav [data-p]').forEach(b => b.onclick = () => show(b.dataset.p));
+
 async function refresh(){
   cfg = await api.getConfig();
-  $('name').textContent = cfg.name; document.title = cfg.name;
+  $('name').textContent = cfg.name; document.title = cfg.name; $('title').textContent = cfg.news;
   $('ver').textContent = `${cfg.name} v${cfg.version} · Minecraft ${cfg.mcVersion}`;
-  $('news').textContent = cfg.news;
-  $('logo').style.display = cfg.logo ? 'block' : 'none'; if(cfg.logo) $('logo').src = cfg.logo;
-  $('name').style.display = cfg.logo ? 'none' : 'block';
+  $('logo').hidden = !cfg.logo; if (cfg.logo) $('logo').src = cfg.logo; $('name').hidden = !!cfg.logo;
   applyBg(cfg.background);
+  $('social').innerHTML = '';
+  [['linkDiscord','💬','Discord'],['linkWeb','🌐','Site'],['linkYoutube','▶','YouTube'],['linkTiktok','♪','TikTok']].forEach(([k,i,t]) => {
+    if (!cfg[k]) return; const b = document.createElement('button'); b.textContent = i; b.title = t; b.onclick = () => api.open(cfg[k]); $('social').append(b); });
+  $('news').innerHTML = '';
+  (cfg.newsList || []).forEach(n => {
+    const a = document.createElement('div'); a.className = 'nc';
+    if (/^https:\/\/[^"')\s]+$/.test(n.image || '')) a.style.backgroundImage = `url("${n.image}")`;
+    const d = document.createElement('small'); d.textContent = n.date || ''; const t = document.createElement('b'); t.textContent = n.title;
+    a.append(d, t); if (n.url) a.onclick = () => api.open(n.url); $('news').append(a); });
+  if (!(cfg.newsList || []).length) $('news').textContent = 'Aucune actualité pour le moment.';
+  srv();
 }
-$('login').onclick = async () => {
-  $('err').textContent=''; $('login').disabled=true;
-  const r = await api.login(); $('login').disabled=false;
-  if(!r.ok){ $('err').textContent=r.error; return; }
-  $('user').textContent = 'Connecté : ' + r.name; $('play').disabled=false;
-};
-$('play').onclick = async () => {
-  $('err').textContent=''; $('play').disabled=true; $('prog').style.display='block';
+async function srv(){
+  $('srv').textContent = '…'; const s = await api.server(); $('srv').innerHTML = '';
+  const row = document.createElement('div'); row.className = 'srow';
+  const dot = document.createElement('span'); dot.className = 'dot' + (s.online ? ' on' : '');
+  const t = document.createElement('span'); t.textContent = `${cfg.name} · ${s.online ? 'En ligne' : 'Hors ligne'}`;
+  const p = document.createElement('b'); p.textContent = s.online ? `${s.players.online}/${s.players.max}` : '';
+  row.append(dot, t, p); $('srv').append(row);
+}
+$('refSrv').onclick = srv; setInterval(srv, 60000);
+
+// Connexion + lancement
+function setMe(){
+  $('chip').hidden = false; $('chip').textContent = 'Connecté sur le compte ' + me.toUpperCase(); $('main').textContent = 'Lancer le jeu';
+  $('avatar').src = 'https://mc-heads.net/avatar/' + encodeURIComponent(me) + '/64'; $('avatar').hidden = false;
+}
+$('main').onclick = async () => {
+  $('err').textContent = ''; $('main').disabled = true;
+  if (!me) {
+    const r = await api.login(); $('main').disabled = false;
+    if (!r.ok) { $('err').textContent = r.error; return; } me = r.name; setMe(); return;
+  }
+  $('prog').style.display = 'block';
   const r = await api.launch();
-  if(!r.ok){ $('err').textContent=r.error; $('play').disabled=false; $('prog').style.display='none'; $('status').textContent=''; }
+  if (!r.ok) { $('err').textContent = r.error; $('main').disabled = false; $('prog').style.display = 'none'; $('status').textContent = ''; }
 };
-api.onProgress(v => $('prog').firstChild.style.width = v+'%');
-api.onStatus(t => { $('status').textContent=t; $('prog').style.display='block'; });
-api.onClosed(() => { $('play').disabled=false; $('prog').style.display='none'; $('status').textContent=''; });
+api.onProgress(v => $('prog').firstChild.style.width = v + '%');
+api.onStatus(t => { $('status').textContent = t; $('prog').style.display = 'block'; });
+api.onClosed(() => { $('main').disabled = false; $('prog').style.display = 'none'; $('status').textContent = ''; });
+
+// Paramètres joueur
+async function loadSet(){ const s = await api.settingsGet(); $('ram').value = s.ram; $('ramv').textContent = s.ram + ' Go'; $('fs').checked = s.fullscreen; $('mini').checked = s.minimize; }
+const saveSet = () => api.settingsSet({ ram: +$('ram').value, fullscreen: $('fs').checked, minimize: $('mini').checked });
+$('ram').oninput = () => { $('ramv').textContent = $('ram').value + ' Go'; saveSet(); };
+$('fs').onchange = $('mini').onchange = saveSet;
+$('openDir').onclick = () => api.open('game');
 
 // Admin
-$('admBtn').onclick = () => {
-  $('a_pw').value=''; $('a_gmsg').textContent='';
-  $('a_gate').style.display='block'; $('a_form').style.display='none';
-  $('admin').style.display='block'; $('a_pw').focus();
-};
-async function enter(){
-  if(!(await api.check($('a_pw').value))){ $('a_gmsg').textContent='Mot de passe incorrect'; return; }
-  $('a_name').value=cfg.name; $('a_version').value=cfg.version; $('a_mc').value=cfg.mcVersion;
-  $('a_ram').value=cfg.ram; $('a_ip').value=cfg.serverIp; $('a_news').value=cfg.news; $('a_remote').value=cfg.remoteUrl||''; $('a_manifest').value=cfg.manifestUrl||'';
-  $('a_rpcId').value=cfg.rpcClientId||''; $('a_rpcDetails').value=cfg.rpcDetails||''; $('a_rpcDetailsP').value=cfg.rpcDetailsPlaying||'';
-  $('a_rpcState').value=cfg.rpcState||''; $('a_rpcStateP').value=cfg.rpcStatePlaying||''; $('a_rpcImg').value=cfg.rpcLargeImage||'';
-  $('a_rpcImgText').value=cfg.rpcLargeText||''; $('a_rpcBtnL').value=cfg.rpcButtonLabel||''; $('a_rpcBtnU').value=cfg.rpcButtonUrl||'';
-  $('a_gate').style.display='none'; $('a_form').style.display='block';
+function fillForm(){
+  F.forEach(([k]) => $('f_' + k).value = cfg[k] || '');
+  $('f_admins').value = (cfg.admins || []).join(', ');
+  $('f_newsList').value = (cfg.newsList || []).map(n => [n.title, n.date, n.image, n.url].map(x => x || '').join(' | ')).join('\n');
+  $('gate').hidden = true; $('aform').hidden = false; $('a_msg').textContent = '';
 }
-$('a_enter').onclick = enter;
-$('a_pw').onkeydown = e => { if(e.key==='Enter') enter(); };
-$('a_cancel').onclick = () => $('admin').style.display='none';
-$('a_close').onclick = () => $('admin').style.display='none';
-const pending = {};
-$('a_bg').onclick = async () => { const u = await api.pick('bg'); if(u){ pending.background=u; applyBg(u);} };
-$('a_logo').onclick = async () => { const u = await api.pick('logo'); if(u){ pending.logo=u; $('logo').src=u; $('logo').style.display='block'; } };
+async function openAdmin(){
+  if (await api.isAdmin()) { pw = ''; fillForm(); return; }
+  $('aform').hidden = true; $('gate').hidden = false; $('gpw').value = ''; $('gmsg').textContent = '';
+}
+async function enter(){ if (await api.check($('gpw').value)) { pw = $('gpw').value; fillForm(); } else $('gmsg').textContent = 'Mot de passe incorrect'; }
+$('genter').onclick = enter; $('gpw').onkeydown = e => { if (e.key === 'Enter') enter(); };
+$('a_bg').onclick = async () => { const u = await api.pick('bg'); if (u) { pending.background = u; applyBg(u); } };
+$('a_logo').onclick = async () => { const u = await api.pick('logo'); if (u) { pending.logo = u; $('logo').src = u; $('logo').hidden = false; $('name').hidden = true; } };
 $('a_save').onclick = async () => {
-  const c = { ...pending, name:$('a_name').value, version:$('a_version').value, mcVersion:$('a_mc').value,
-    ram:+$('a_ram').value||4, serverIp:$('a_ip').value, news:$('a_news').value, remoteUrl:$('a_remote').value, manifestUrl:$('a_manifest').value.trim(),
-    rpcClientId:$('a_rpcId').value.trim(), rpcDetails:$('a_rpcDetails').value, rpcDetailsPlaying:$('a_rpcDetailsP').value, rpcState:$('a_rpcState').value,
-    rpcStatePlaying:$('a_rpcStateP').value, rpcLargeImage:$('a_rpcImg').value.trim(), rpcLargeText:$('a_rpcImgText').value,
-    rpcButtonLabel:$('a_rpcBtnL').value, rpcButtonUrl:$('a_rpcBtnU').value.trim() };
-  if($('a_newpw').value) c.newPassword = $('a_newpw').value;
-  const r = await api.save($('a_pw').value, c);
+  const c = { ...pending };
+  F.forEach(([k]) => c[k] = $('f_' + k).value.trim());
+  c.admins = $('f_admins').value.split(',').map(s => s.trim()).filter(Boolean);
+  c.newsList = $('f_newsList').value.split('\n').map(l => l.split('|').map(s => s.trim())).filter(a => a[0]).map(([title, date, image, url]) => ({ title, date, image, url }));
+  if ($('f_newPassword').value) c.newPassword = $('f_newPassword').value;
+  const r = await api.save(pw, c);
   $('a_msg').textContent = r.ok ? 'Enregistré' : r.error;
-  if(r.ok){ if(c.newPassword) $('a_pw').value=c.newPassword; $('a_newpw').value=''; await refresh(); }
+  if (r.ok) { if (c.newPassword) pw = c.newPassword; $('f_newPassword').value = ''; pending = {}; await refresh(); }
 };
 refresh();
 </script></body></html>

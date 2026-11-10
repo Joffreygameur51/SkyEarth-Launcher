@@ -1,0 +1,38 @@
+{
+  "name": "skyearth-launcher",
+  "productName": "SkyEarth Launcher",
+  "version": "1.0.0",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "build": "electron-builder",
+    "release": "electron-builder --publish always"
+  },
+  "dependencies": {
+    "msmc": "^5.0.5",
+    "minecraft-launcher-core": "^3.18.2",
+    "discord-rpc": "^4.0.1",
+    "electron-updater": "^6.3.0"
+  },
+  "devDependencies": {
+    "electron": "^31.0.0",
+    "electron-builder": "^24.13.3"
+  },
+  "build": {
+    "appId": "fr.skyearth.launcher",
+    "win": {
+      "target": "nsis"
+    },
+    "files": [
+      "**/*",
+      "!tools/**"
+    ],
+    "publish": [
+      {
+        "provider": "github",
+        "owner": "Joffreygameur51",
+        "repo": "SkyEarth-Launcher"
+      }
+    ]
+  }
+}

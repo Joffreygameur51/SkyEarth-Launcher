@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="fr"><head><meta charset="UTF-8">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self' file:; img-src 'self' file: data:; media-src 'self' file:; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'">
+<title>SkyEarth</title>
+<style>
+:root{--sky:#6EC6FF;--deep:#0B2A4A;--grass:#5BAA3C;--dirt:#7A4B2A;--cloud:#F4F8FB}
+*{box-sizing:border-box;margin:0}
+body{width:1000px;height:620px;overflow:hidden;font:16px/1.4 "Trebuchet MS",Verdana,sans-serif;color:var(--cloud);background:linear-gradient(var(--sky) 0 55%,var(--grass) 55% 58%,var(--dirt) 58%)}
+#bg{position:fixed;inset:0;width:100%;height:100%;object-fit:cover;z-index:0}
+.shade{position:fixed;inset:0;background:linear-gradient(90deg,#0B2A4Acc,#0B2A4A00 70%);z-index:1}
+#bar{position:fixed;top:0;left:0;right:0;height:36px;-webkit-app-region:drag;display:flex;justify-content:flex-end;gap:4px;padding:4px 8px;z-index:5}
+#bar button{-webkit-app-region:no-drag;width:30px;background:#0003;color:var(--cloud);border:0;border-radius:4px;cursor:pointer}
+main{position:relative;z-index:2;height:100%;padding:60px 48px 40px;display:flex;flex-direction:column;justify-content:space-between;width:430px}
+#logo{max-width:220px;max-height:110px;display:none}
+h1{font-size:44px;letter-spacing:1px}
+#ver{opacity:.8;font-size:14px}
+#news{margin-top:18px;padding:14px 16px;background:#0B2A4Aaa;border-left:4px solid var(--grass);border-radius:4px}
+.btn{border:0;border-radius:6px;padding:14px 20px;font:inherit;font-weight:700;cursor:pointer;color:#fff;background:var(--grass);width:100%}
+.btn:hover{filter:brightness(1.1)}.btn:focus-visible,input:focus-visible{outline:3px solid var(--cloud);outline-offset:2px}
+.btn.alt{background:#0B2A4Acc;margin-top:10px}.btn:disabled{opacity:.5;cursor:default}
+#prog{height:8px;background:#0006;border-radius:4px;overflow:hidden;margin-top:12px;display:none}
+#prog i{display:block;height:100%;width:0;background:var(--sky)}
+#user,#err{margin-bottom:8px;min-height:20px}#err{color:#ffb4a8}
+#admin{position:fixed;inset:0;z-index:10;background:#0B2A4Af2;display:none;padding:50px 80px;overflow:auto}
+#admin label{display:block;margin:10px 0 4px;font-size:14px}
+#admin input{width:100%;padding:9px;border-radius:5px;border:0;font:inherit}
+#admin .row{display:flex;gap:10px}#admin .row>*{flex:1}
+</style></head><body>
+<div id="bar"><button id="admBtn" title="Admin">⚙</button><button onclick="api.win('min')">–</button><button onclick="api.win('close')">✕</button></div>
+<div class="shade"></div>
+<main>
+  <div>
+    <img id="logo" alt="Logo"><h1 id="name">SkyEarth</h1><div id="ver"></div>
+    <div id="news"></div>
+  </div>
+  <div>
+    <div id="user"></div><div id="err"></div>
+    <button class="btn alt" id="login">Se connecter avec Microsoft</button>
+    <button class="btn" id="play" disabled>Jouer</button>
+    <div id="prog"><i></i></div><div id="status" style="margin-top:8px;font-size:14px;min-height:20px"></div>
+  </div>
+</main>
+
+<section id="admin">
+  <h2>Panel admin</h2>
+  <div id="a_gate">
+    <label>Mot de passe admin</label><input id="a_pw" type="password">
+    <div class="row" style="margin-top:14px">
+      <button class="btn" id="a_enter">Entrer</button>
+      <button class="btn alt" id="a_cancel" style="margin-top:0">Annuler</button>
+    </div>
+    <div id="a_gmsg" style="margin-top:10px;color:#ffb4a8"></div>
+  </div>
+  <div id="a_form" style="display:none">
+  <div class="row"><div><label>Nom</label><input id="a_name"></div><div><label>Version du launcher</label><input id="a_version"></div></div>
+  <div class="row"><div><label>Version Minecraft</label><input id="a_mc"></div><div><label>RAM (Go)</label><input id="a_ram" type="number" min="1" max="32"></div></div>
+  <label>IP du serveur</label><input id="a_ip">
+  <label>Message d'accueil</label><input id="a_news">
+  <label>URL du manifest de mods (modpack.json)</label><input id="a_manifest">
+  <label>URL de config distante (optionnel, pour tous les joueurs)</label><input id="a_remote">
+  <label>Nouveau mot de passe admin (optionnel)</label><input id="a_newpw" type="password">
+  <h3 style="margin-top:18px">Discord Rich Presence</h3>
+  <label>Application ID (vide = RPC désactivé)</label><input id="a_rpcId">
+  <div class="row"><div><label>Ligne 1 (launcher)</label><input id="a_rpcDetails"></div><div><label>Ligne 2 (launcher)</label><input id="a_rpcState"></div></div>
+  <div class="row"><div><label>Ligne 1 (en jeu)</label><input id="a_rpcDetailsP"></div><div><label>Ligne 2 (en jeu)</label><input id="a_rpcStateP"></div></div>
+  <div class="row"><div><label>Nom de l'image (Art Assets)</label><input id="a_rpcImg"></div><div><label>Texte au survol de l'image</label><input id="a_rpcImgText"></div></div>
+  <div class="row"><div><label>Bouton : texte</label><input id="a_rpcBtnL"></div><div><label>Bouton : lien (https://…)</label><input id="a_rpcBtnU"></div></div>
+  <div style="font-size:13px;opacity:.8;margin-top:6px">Variables : {player} {version} {name}</div>
+  <div class="row" style="margin-top:14px">
+    <button class="btn alt" id="a_bg">Fond (image / GIF / vidéo)</button>
+    <button class="btn alt" id="a_logo">Logo</button>
+  </div>
+  <div class="row" style="margin-top:14px">
+    <button class="btn" id="a_save">Enregistrer</button>
+    <button class="btn alt" id="a_close">Fermer</button>
+  </div>
+  <div id="a_msg" style="margin-top:10px"></div>
+  </div>
+</section>
+
+<script>
+const $ = id => document.getElementById(id);
+let cfg = {};
+const isVideo = u => /\.(mp4|webm)(\?|$)/i.test(u);
+
+function applyBg(u){
+  document.querySelectorAll('#bg').forEach(e=>e.remove());
+  if(!u) return;
+  const el = document.createElement(isVideo(u)?'video':'img');
+  el.id='bg'; el.src=u;
+  if(isVideo(u)) Object.assign(el,{autoplay:true,loop:true,muted:true});
+  document.body.prepend(el);
+}
+async function refresh(){
+  cfg = await api.getConfig();
+  $('name').textContent = cfg.name; document.title = cfg.name;
+  $('ver').textContent = `${cfg.name} v${cfg.version} · Minecraft ${cfg.mcVersion}`;
+  $('news').textContent = cfg.news;
+  $('logo').style.display = cfg.logo ? 'block' : 'none'; if(cfg.logo) $('logo').src = cfg.logo;
+  $('name').style.display = cfg.logo ? 'none' : 'block';
+  applyBg(cfg.background);
+}
+$('login').onclick = async () => {
+  $('err').textContent=''; $('login').disabled=true;
+  const r = await api.login(); $('login').disabled=false;
+  if(!r.ok){ $('err').textContent=r.error; return; }
+  $('user').textContent = 'Connecté : ' + r.name; $('play').disabled=false;
+};
+$('play').onclick = async () => {
+  $('err').textContent=''; $('play').disabled=true; $('prog').style.display='block';
+  const r = await api.launch();
+  if(!r.ok){ $('err').textContent=r.error; $('play').disabled=false; $('prog').style.display='none'; $('status').textContent=''; }
+};
+api.onProgress(v => $('prog').firstChild.style.width = v+'%');
+api.onStatus(t => { $('status').textContent=t; $('prog').style.display='block'; });
+api.onClosed(() => { $('play').disabled=false; $('prog').style.display='none'; $('status').textContent=''; });
+
+// Admin
+$('admBtn').onclick = () => {
+  $('a_pw').value=''; $('a_gmsg').textContent='';
+  $('a_gate').style.display='block'; $('a_form').style.display='none';
+  $('admin').style.display='block'; $('a_pw').focus();
+};
+async function enter(){
+  if(!(await api.check($('a_pw').value))){ $('a_gmsg').textContent='Mot de passe incorrect'; return; }
+  $('a_name').value=cfg.name; $('a_version').value=cfg.version; $('a_mc').value=cfg.mcVersion;
+  $('a_ram').value=cfg.ram; $('a_ip').value=cfg.serverIp; $('a_news').value=cfg.news; $('a_remote').value=cfg.remoteUrl||''; $('a_manifest').value=cfg.manifestUrl||'';
+  $('a_rpcId').value=cfg.rpcClientId||''; $('a_rpcDetails').value=cfg.rpcDetails||''; $('a_rpcDetailsP').value=cfg.rpcDetailsPlaying||'';
+  $('a_rpcState').value=cfg.rpcState||''; $('a_rpcStateP').value=cfg.rpcStatePlaying||''; $('a_rpcImg').value=cfg.rpcLargeImage||'';
+  $('a_rpcImgText').value=cfg.rpcLargeText||''; $('a_rpcBtnL').value=cfg.rpcButtonLabel||''; $('a_rpcBtnU').value=cfg.rpcButtonUrl||'';
+  $('a_gate').style.display='none'; $('a_form').style.display='block';
+}
+$('a_enter').onclick = enter;
+$('a_pw').onkeydown = e => { if(e.key==='Enter') enter(); };
+$('a_cancel').onclick = () => $('admin').style.display='none';
+$('a_close').onclick = () => $('admin').style.display='none';
+const pending = {};
+$('a_bg').onclick = async () => { const u = await api.pick('bg'); if(u){ pending.background=u; applyBg(u);} };
+$('a_logo').onclick = async () => { const u = await api.pick('logo'); if(u){ pending.logo=u; $('logo').src=u; $('logo').style.display='block'; } };
+$('a_save').onclick = async () => {
+  const c = { ...pending, name:$('a_name').value, version:$('a_version').value, mcVersion:$('a_mc').value,
+    ram:+$('a_ram').value||4, serverIp:$('a_ip').value, news:$('a_news').value, remoteUrl:$('a_remote').value, manifestUrl:$('a_manifest').value.trim(),
+    rpcClientId:$('a_rpcId').value.trim(), rpcDetails:$('a_rpcDetails').value, rpcDetailsPlaying:$('a_rpcDetailsP').value, rpcState:$('a_rpcState').value,
+    rpcStatePlaying:$('a_rpcStateP').value, rpcLargeImage:$('a_rpcImg').value.trim(), rpcLargeText:$('a_rpcImgText').value,
+    rpcButtonLabel:$('a_rpcBtnL').value, rpcButtonUrl:$('a_rpcBtnU').value.trim() };
+  if($('a_newpw').value) c.newPassword = $('a_newpw').value;
+  const r = await api.save($('a_pw').value, c);
+  $('a_msg').textContent = r.ok ? 'Enregistré' : r.error;
+  if(r.ok){ if(c.newPassword) $('a_pw').value=c.newPassword; $('a_newpw').value=''; await refresh(); }
+};
+refresh();
+</script></body></html>

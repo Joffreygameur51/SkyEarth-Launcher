@@ -1,0 +1,22 @@
+{
+  "name": "SkyEarth",
+  "version": "1.0.0",
+  "mcVersion": "1.20.4",
+  "ram": 4,
+  "logo": "",
+  "background": "",
+  "news": "Bienvenue sur SkyEarth !",
+  "serverIp": "play.skyearth.fr",
+  "remoteUrl": "",
+  "adminHash": "8c6976e5b5410415bde908bd4dee15dfb167a9c873fc4bb8a81f6f2ab448a918",
+  "rpcClientId": "1480218210023510017",
+  "rpcDetails": "Joue à {name}",
+  "rpcState": "Dans le launcher",
+  "rpcStatePlaying": "En jeu : {player}",
+  "rpcLargeImage": "logo",
+  "rpcLargeText": "{name} v{version}",
+  "rpcButtonLabel": "Rejoindre le Discord",
+  "rpcButtonUrl": "",
+  "rpcDetailsPlaying": "Joue à Minecraft sur {name}",
+  "manifestUrl": ""
+}
